@@ -124,9 +124,9 @@
         return;
       }
 
-      // Disable locking just for this round if it was previously flagged
+      
       if (lockingDisabledForThisSpin) {
-        canLock = true; // re-enable for next round
+        canLock = true; 
         lockingDisabledForThisSpin = false;
         document.getElementById("message").innerText = "";
       }
@@ -143,14 +143,14 @@
 
       checkWin();
 
-      // If any reels were locked this round, disable locking next round
+      
       if (lockedReels.includes(true)) {
         canLock = false;
         lockingDisabledForThisSpin = true;
         document.getElementById("message").innerText = "Seuraavalla kierroksella ei voi lukita rullia!";
       }
 
-      // Reset all locks visually and logically
+      
       lockedReels = [false, false, false, false];
       for (let i = 0; i < 4; i++) {
         document.getElementById(`reel${i}`).classList.remove("locked");
