@@ -112,6 +112,7 @@
     let currentSymbols = ['', '', '', ''];
     let spinInProgress = false;
     let canLock = true;
+    let lockingDisabledForThisSpin = false;
 
     function spinReels() {
       if (spinInProgress) return;
@@ -123,13 +124,11 @@
         return;
       }
 
-      
-      if (!lockedReels.includes(true)) {
-        
-        canLock = true;
-      } else {
-        
-        canLock = false;
+      // Disable locking just for this round if it was previously flagged
+      if (lockingDisabledForThisSpin) {
+        canLock = true; // re-enable for next round
+        lockingDisabledForThisSpin = false;
+        document.getElementById("message").innerText = "";
       }
 
       money -= bet;
@@ -144,13 +143,17 @@
 
       checkWin();
 
-      if (!canLock) {
-        
-        lockedReels = [false, false, false, false];
-        for (let i = 0; i < 4; i++) {
-          document.getElementById(`reel${i}`).classList.remove("locked");
-        }
-        canLock = true;
+      // If any reels were locked this round, disable locking next round
+      if (lockedReels.includes(true)) {
+        canLock = false;
+        lockingDisabledForThisSpin = true;
+        document.getElementById("message").innerText = "Seuraavalla kierroksella ei voi lukita rullia!";
+      }
+
+      // Reset all locks visually and logically
+      lockedReels = [false, false, false, false];
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`reel${i}`).classList.remove("locked");
       }
 
       spinInProgress = false;
@@ -171,7 +174,7 @@
       if (winnings > 0) {
         money += winnings;
         document.getElementById("message").innerText = `Sinä voitit ${winnings}€!`;
-      } else {
+      } else if (!lockingDisabledForThisSpin) {
         document.getElementById("message").innerText = "Ei voittoa, yritä uudelleen!";
       }
 
