@@ -1,120 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kolikkopeli</title>
-    <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        .reels { display: flex; justify-content: center; margin: 20px; }
-        .reel { width: 100px; height: 100px; border: 2px solid black; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .locked { background-color: rgb(253, 4, 4); }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #cf44d6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fdfdfd;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(240, 252, 8, 0.2);
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label, select, input {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #eafcfc;
-            color: #900b0b;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #a38200;
-        }
-        #result, #error {
-        
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kolikkopeli</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #cf44d6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .container {
+      background-color: #fdfdfd;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(240, 252, 8, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    .reels {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+    .reel {
+      width: 100px;
+      height: 100px;
+      border: 2px solid black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 5px;
+    }
+    .locked {
+      background-color: rgb(253, 4, 4);
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #eafcfc;
+      color: #900b0b;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a38200;
+    }
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #eafcfc;
+      color: black;
+    }
+  </style>
 </head>
 <body>
-    <h1>Kolikkopeli</h1>
-    <p>Raha: <span id="money">10</span>€</p>
-    <div class="reels">
-        <div class="reel" onclick="toggleLock(0)" id="reel0">?</div>
-        <div class="reel" onclick="toggleLock(1)" id="reel1">?</div>
-        <div class="reel" onclick="toggleLock(2)" id="reel2">?</div>
-        <div class="reel" onclick="toggleLock(3)" id="reel3">?</div>
-    </div>
-    <button onclick="spinReels()">Pelaa</button>
-    <p id="message"></p>
-    <script>
-        const symbols = ['🍏', '🍐', '🍒', '🍉', '7'];
-        let money = 10;
-        let bet = 1;
-        let lockedReels = [false, false, false, false];
-        let currentSymbols = ['', '', '', ''];
+  <h1>Kolikkopeli</h1>
+  <p>Raha: <span id="money">10</span>€</p>
+  <div class="reels">
+    <div class="reel" onclick="toggleLock(0)" id="reel0">?</div>
+    <div class="reel" onclick="toggleLock(1)" id="reel1">?</div>
+    <div class="reel" onclick="toggleLock(2)" id="reel2">?</div>
+    <div class="reel" onclick="toggleLock(3)" id="reel3">?</div>
+  </div>
+  <button onclick="spinReels()">Pelaa</button>
+  <p id="message"></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Symboli</th>
+        <th>Voittokerroin</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>7</td><td>x10</td></tr>
+      <tr><td>🍏</td><td>x6</td></tr>
+      <tr><td>🍉</td><td>x5</td></tr>
+      <tr><td>🍐</td><td>x4</td></tr>
+      <tr><td>🍒</td><td>x3</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const symbols = ['🍏', '🍐', '🍒', '🍉', '7'];
+    let money = 10;
+    let bet = 1;
+    let lockedReels = [false, false, false, false];
+    let currentSymbols = ['', '', '', ''];
+    let spinInProgress = false;
+    let canLock = true;
+
+    function spinReels() {
+      if (spinInProgress) return;
+      spinInProgress = true;
+
+      if (money < bet) {
+        document.getElementById("message").innerText = "Ei tarpeeksi rahaa!";
+        spinInProgress = false;
+        return;
+      }
+
+      
+      if (!lockedReels.includes(true)) {
         
-        function spinReels() {
-            if (money < bet) {
-                document.getElementById("message").innerText = "Not enough money!";
-                return;
-            }
-            money -= bet;
-            document.getElementById("money").innerText = money;
-            
-            for (let i = 0; i < 4; i++) {
-                if (!lockedReels[i]) {
-                    currentSymbols[i] = symbols[Math.floor(Math.random() * symbols.length)];
-                    document.getElementById(`reel${i}`).innerText = currentSymbols[i];
-                }
-            }
-            checkWin();
-        }
+        canLock = true;
+      } else {
         
-        function checkWin() {
-            let counts = {};
-            currentSymbols.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
-            let winnings = 0;
-            
-            if (counts['7'] === 4) winnings = bet * 10;
-            else if (counts['🍏'] === 4) winnings = bet * 6;
-            else if (counts['🍉'] === 4) winnings = bet * 5;
-            else if (counts['🍐'] === 4) winnings = bet * 4;
-            else if (counts['🍒'] === 4) winnings = bet * 3;
-            else if (counts['7'] >= 2) winnings = bet * 5;
-            
-            if (winnings > 0) {
-                money += winnings;
-                document.getElementById("message").innerText = `You won ${winnings}€!`;
-            } else {
-                document.getElementById("message").innerText = "No win, try again!";
-            }
-            document.getElementById("money").innerText = money;
+        canLock = false;
+      }
+
+      money -= bet;
+      document.getElementById("money").innerText = money;
+
+      for (let i = 0; i < 4; i++) {
+        if (!lockedReels[i]) {
+          currentSymbols[i] = symbols[Math.floor(Math.random() * symbols.length)];
+          document.getElementById(`reel${i}`).innerText = currentSymbols[i];
         }
+      }
+
+      checkWin();
+
+      if (!canLock) {
         
-        function toggleLock(index) {
-            lockedReels[index] = !lockedReels[index];
-            document.getElementById(`reel${index}`).classList.toggle("locked");
+        lockedReels = [false, false, false, false];
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`reel${i}`).classList.remove("locked");
         }
-    </script>
+        canLock = true;
+      }
+
+      spinInProgress = false;
+    }
+
+    function checkWin() {
+      let counts = {};
+      currentSymbols.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
+      let winnings = 0;
+
+      if (counts['7'] === 4) winnings = bet * 10;
+      else if (counts['🍏'] === 4) winnings = bet * 6;
+      else if (counts['🍉'] === 4) winnings = bet * 5;
+      else if (counts['🍐'] === 4) winnings = bet * 4;
+      else if (counts['🍒'] === 4) winnings = bet * 3;
+      else if (counts['7'] >= 2) winnings = bet * 5;
+
+      if (winnings > 0) {
+        money += winnings;
+        document.getElementById("message").innerText = `Sinä voitit ${winnings}€!`;
+      } else {
+        document.getElementById("message").innerText = "Ei voittoa, yritä uudelleen!";
+      }
+
+      document.getElementById("money").innerText = money;
+    }
+
+    function toggleLock(index) {
+      if (spinInProgress || !canLock) return;
+      lockedReels[index] = !lockedReels[index];
+      document.getElementById(`reel${index}`).classList.toggle("locked");
+    }
+  </script>
 </body>
 </html>
